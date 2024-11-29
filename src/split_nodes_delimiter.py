@@ -25,6 +25,9 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
 def split_nodes_image(old_nodes):
     new_nodes = []
     for node in old_nodes:
+        if node.text_type != TextType.TEXT:
+            new_nodes.append(node)
+            continue
         #finds all image nodes within node
         extracted_images = extract_markdown_images(node.text)
         #checks if there are any image links and adds plain text node back to list if not
@@ -53,28 +56,15 @@ def split_nodes_image(old_nodes):
                 continue
             else:
                 next_node = TextNode(section, TextType.TEXT)
-            new_node.append(next_node)
-        new_nodes.append(new_node)
-    #check to ensure not returning a list of a list
-    if len(new_nodes) == 1:
-        return new_nodes[0]
+            new_nodes.append(next_node)
     return new_nodes
-
-#node = TextNode("![image](https://www.example.COM/IMAGE.PNG)",
- #           TextType.TEXT)
-#new_nodes = split_nodes_image([node])
-
-
-
-#node = TextNode(
-#    "This is text with a link ![to boot dev](https://www.boot.dev) and ![to youtube](https://www.youtube.com/@bootdotdev)",
-#    TextType.TEXT,
-#)
-#new_nodes = split_nodes_image([node, node])
                 
 def split_nodes_link(old_nodes):
     new_nodes = []
     for node in old_nodes:
+        if node.text_type != TextType.TEXT:
+            new_nodes.append(node)
+            continue
         #finds all link nodes within node
         extracted_links = extract_markdown_links(node.text)
         #checks if there are any image links and adds plain text node back to list if not
@@ -96,22 +86,21 @@ def split_nodes_link(old_nodes):
         new_node = []
         i = 0
         for section in final_node_sections:
-            if "](" in section:
+            if "](" in section and "![" not in section:
                 next_node = TextNode(extracted_links[i][0], TextType.LINK, extracted_links[i][1])
                 i += 1
             elif section == "":
                 continue
             else:
                 next_node = TextNode(section, TextType.TEXT)
-            new_node.append(next_node)
-        new_nodes.append(new_node)
-    #check to ensure not returning a list of a list
-    if len(new_nodes) == 1:
-        return new_nodes[0]
+            new_nodes.append(next_node)
     return new_nodes
 
-#node = TextNode(
-#    "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
-#    TextType.TEXT,
-#)
-#new_nodes = split_nodes_link([node])
+def text_to_textnodes(text):
+    text_as_node = [TextNode(text, TextType.TEXT)]
+    bold = split_nodes_delimiter(text_as_node, "**", TextType.BOLD)
+    italics = split_nodes_delimiter(bold, "*", TextType.ITALIC)
+    code = split_nodes_delimiter(italics, "`", TextType.CODE)
+    images = split_nodes_image(code)
+    links = split_nodes_link(images)
+    return links
