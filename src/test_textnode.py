@@ -5,13 +5,13 @@ from split_nodes_delimiter import *
 
 class TestTextNode(unittest.TestCase):
     def test_eq(self):
-        node = TextNode("This is a text node", "bold")
-        node2 = TextNode("This is a text node", "bold")
+        node = TextNode("This is a text node", TextType.BOLD)
+        node2 = TextNode("This is a text node", TextType.BOLD)
         self.assertEqual(node, node2)
 
     def test2_eq(self):
-        node = TextNode("123 Test Text", "bold", "www.something.com")
-        node2 = TextNode("123 Test Text", "bold", "www.something.com")
+        node = TextNode("123 Test Text", TextType.BOLD, "www.something.com")
+        node2 = TextNode("123 Test Text", TextType.BOLD, "www.something.com")
         self.assertEqual(node, node2)
 
     def test3_eq(self):
@@ -20,14 +20,14 @@ class TestTextNode(unittest.TestCase):
         self.assertEqual(node, node2)
     
     def test4_NOTeq(self):
-        node = TextNode("123 Test Text", "bold", "www.something.com")
-        node2 = TextNode("123 Test Text", "italics", "www.something.com")
+        node = TextNode("123 Test Text", TextType.BOLD, "www.something.com")
+        node2 = TextNode("123 Test Text", TextType.ITALIC, "www.something.com")
         self.assertNotEqual(node, node2)
 
     def test_repr(self):
         node = TextNode("This is a text node", TextType.TEXT, "https://www.boot.dev")
         self.assertEqual(
-            "TextNode(This is a text node, TextType.TEXT, https://www.boot.dev)", repr(node)
+            "TextNode(This is a text node, text, https://www.boot.dev)", repr(node)
         )
 
 class TestTextNodetoHTMLNode(unittest.TestCase):
@@ -87,7 +87,26 @@ class TestSplitNodesDelimiter(unittest.TestCase):
                 TextNode("another word", TextType.BOLD),]
         self.assertEqual(new_nodes, actual)
 
-    
+class TestSplitBlocks(unittest.TestCase):
+        def test_markdown_to_blocks(self):
+            md = """
+This is **bolded** paragraph
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+- This is a list
+- with items
+"""
+            blocks = markdown_to_blocks(md)
+            self.assertEqual(
+                blocks,
+                [
+                    "This is **bolded** paragraph",
+                    "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                    "- This is a list\n- with items",
+                ],
+            )
 
 
 if __name__ == "__main__":
