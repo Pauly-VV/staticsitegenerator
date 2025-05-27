@@ -98,9 +98,10 @@ def split_nodes_link(old_nodes):
 
 def text_to_textnodes(text):
     text_as_node = [TextNode(text, TextType.TEXT)]
-    bold = split_nodes_delimiter(text_as_node, "**", TextType.BOLD)
+    code = split_nodes_delimiter(text_as_node, "`", TextType.CODE)
+    bold = split_nodes_delimiter(code, "**", TextType.BOLD)
     italics = split_nodes_delimiter(bold, "*", TextType.ITALIC)
-    code = split_nodes_delimiter(italics, "`", TextType.CODE)
-    images = split_nodes_image(code)
-    links = split_nodes_link(images)
+    images = split_nodes_image(italics)
+    italics_underscore = split_nodes_delimiter(images, "_", TextType.ITALIC)
+    links = split_nodes_link(italics_underscore)
     return links   
